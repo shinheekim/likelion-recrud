@@ -10,6 +10,8 @@ import org.likelion.likelionrecrud.order.api.response.OrderInfoResDto;
 import org.likelion.likelionrecrud.order.api.response.OrderItemResDto;
 import org.likelion.likelionrecrud.order.domain.Order;
 import org.likelion.likelionrecrud.order.domain.OrderItem;
+import org.likelion.likelionrecrud.order.domain.OrderStatus;
+import org.likelion.likelionrecrud.order.domain.repository.OrderItemRepository;
 import org.likelion.likelionrecrud.order.domain.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,15 +27,15 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
     private final ItemRepository itemRepository;
+    private final OrderItemRepository orderItemRepository;
 
     @Transactional
-    public Long orderSave(OrderSaveReqDto orderSaveReqDto) {
+    public void orderSave(OrderSaveReqDto orderSaveReqDto) {
         // 회원 조회
         Member member = memberRepository.findById(orderSaveReqDto.memberId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원이 없습니다. id=" + orderSaveReqDto.memberId()));
 
         // 주문 상품 목록 준비
-        List<OrderItem> orderItems = new ArrayList<>();
         for (int i = 0; i < orderSaveReqDto.itemIds().size(); i++) {
             Long itemId = orderSaveReqDto.itemIds().get(i);
             int count = orderSaveReqDto.counts().get(i);
@@ -42,38 +44,60 @@ public class OrderService {
             Item item = itemRepository.findById(itemId)
                     .orElseThrow(() -> new IllegalArgumentException("해당 상품이 없습니다. id=" + itemId));
 
-            // 주문 상품 생성(상품이 정상적으로 조회되면, 해당 상품과 구매 수량을 이용하여 주문 상품(OrderItem)을 생성하고, 이를 주문 상품 목록에 추가)
-            OrderItem orderItem = OrderItem.createOrderItem(item, item.getPrice(), count);
-            orderItems.add(orderItem);
+            Order order = Order.builder()
+                    .member(member)
+                    .status(OrderStatus.ORDER)
+                    .build();
 
+            orderRepository.save(order);
+
+            orderItemRepository.save(OrderItem.builder()
+                    .item(item)
+                    .order(order)
+                    .count(count)
+                    .orderPrice(item.getPrice())
+                    .build());
         }
-        // 주문 생성(준비된 회원 정보와 주문 상품 목록을 이용하여 주문(Order) 객체를 생성)
-        Order order = Order.createOrder(member, orderItems);
 
-        // 주문 저장(생성된 주문 객체를 orderRepository를 통해 데이터베이스에 저장)
-        orderRepository.save(order);
-
-        //저장된 주문의 ID를 반환
-        return order.getId();
     }
 
     //특정 회원이 가진 모든 주문과 각 주문에 포함된 주문 항목들의 정보를 OrderInfoResDto 객체의 리스트 형태로 제공
     public List<OrderInfoResDto> findOrderInfoByMemberId(Long memberId) {
-        // member id에 해당하는 모든 주문 목록 조회
-        List<Order> orders = orderRepository.findByMemberId(memberId);
-        return orders.stream()  // 주문 목록을 스트림으로 반환
-                .map(order -> new OrderInfoResDto(  // Order 객체를 OrderInfoResDto 객체로 변환
-                        order.getMember().getId(),
-                        order.getId(),
-                        order.getOrderItems().stream()
-                                .map(orderItem -> new OrderItemResDto( // 각 OrderItem 객체는 OrderItemResDto 객체로 변환
-                                        orderItem.getItem().getId(),
-                                        orderItem.getOrderPrice(),
-                                        orderItem.getCount()
-                                ))
-                                .toList()   // 이 친구를 통해 OrderItemResDto 객체의 리스트로 수집
-                ))
-                .toList();  //최종 리스트로 수집, 이 리스트는 메서드의 반환값으로 사용
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 회원이 없습니다. id=" + memberId));
+
+        List<OrderItem> allByOrderMember = orderItemRepository.findAllByOrderMember(member);
+
+        List<OrderInfoResDto> ll = new ArrayList<>();
+        for (OrderItem orderItem : allByOrderMember) {
+            OrderInfoResDto o = new OrderInfoResDto(member.getId(), orderItem.getOrder().getId(), orderItem.getOrder().getOrderItems()
+                    .stream().map(orderIte -> new OrderItemResDto(
+                            orderIte.getItem().getId(),
+                            orderIte.getOrderPrice(),
+                            orderIte.getCount()))
+                    .toList());
+
+            ll.add(o);
+        }
+
+        return ll;
+
+
+//        // member id에 해당하는 모든 주문 목록 조회
+//        List<Order> orders = orderRepository.findByMemberId(memberId);
+//        return orders.stream()  // 주문 목록을 스트림으로 반환
+//                .map(order -> new OrderInfoResDto(  // Order 객체를 OrderInfoResDto 객체로 변환
+//                        order.getMember().getId(),
+//                        order.getId(),
+//                        order.getOrderItems().stream()
+//                                .map(orderItem -> new OrderItemResDto( // 각 OrderItem 객체는 OrderItemResDto 객체로 변환
+//                                        orderItem.getItem().getId(),
+//                                        orderItem.getOrderPrice(),
+//                                        orderItem.getCount()
+//                                ))
+//                                .toList()   // 이 친구를 통해 OrderItemResDto 객체의 리스트로 수집
+//                ))
+//                .toList();  //최종 리스트로 수집, 이 리스트는 메서드의 반환값으로 사용
     }
 
 //    @Transactional
