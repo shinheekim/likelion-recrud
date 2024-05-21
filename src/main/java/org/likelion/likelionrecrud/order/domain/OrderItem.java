@@ -11,6 +11,7 @@ import static jakarta.persistence.FetchType.LAZY;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderItem {
+    //주문한 상품 정보와 주문 금액(orderPrice), 주문 수량(count) 정보를 가지고 있다.
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,9 +47,10 @@ public class OrderItem {
 //        item.removeStock(count);
         return orderItem;
     }
+    // 주문 아이템이 어떤 주문 객체에 속하는지를 설정
 
     void addOrder(Order order) {
-        this.order = order;
+        this.order = order;   // 주문 객체를 인자로 받아 내부 필드인 order를 해당 주문 객체로 설정
     }
 
 //    public void cancel() {

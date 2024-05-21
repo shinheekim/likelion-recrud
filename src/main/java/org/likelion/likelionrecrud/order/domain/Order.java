@@ -42,7 +42,7 @@ public class Order {
         this.member = member;
         this.orderItems = new ArrayList<>();
         if (orderItems != null) {
-            orderItems.forEach(this::addOrderItem); // orderItems 목록의 각 요소에 대해 addOrderItem 메소드 호출(메소드 참조)
+            orderItems.forEach(this::addOrderItem); // 전달받은 orderItems 목록(리스트)의 각 요소에 대해 addOrderItem 메소드 호출(메소드 참조)
         }// orderItems 목록의 각 OrderItem 객체에 대해 현재 주문 객체(this)의 addOrderItem 메소드를 실행하라는 의미
         this.orderDate = orderDate;
         this.status = status;
@@ -50,8 +50,8 @@ public class Order {
 
     // 주문 아이템 목록(orderItems)에 주문 아이템을 추가하고, 주문 아이템 측에도 현재 주문 객체를 설정하여 양방향 관계를 완성
     public void addOrderItem(OrderItem orderItem) {
-        orderItems.add(orderItem);
-        orderItem.addOrder(this);
+        orderItems.add(orderItem);  // orderItem을 현재 order객체의 orderItems 리스트에 추가
+        orderItem.addOrder(this);   // orderItem객체에도 현재 주문 객체 설정. 양방향 관계 설정
     }
 
     // 주문 객체를 생성하는 팩토리 메서드. 주문자, 주문 아이템 목록, 주문 날짜(현재 시각), 주문 상태(ORDER)를 설정
