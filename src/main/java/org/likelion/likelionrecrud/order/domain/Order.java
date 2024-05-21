@@ -17,7 +17,6 @@ public class Order {
     // 주문과 주문상품은 일대다 관계,
     // 주문은 상품을 주문한 회원과 주문리스트, 주문 날짜, 주문 상태(status)를 가지고 있다.
     // 주문 상태는 열거형을 사용해서 주문(ORDER), 취소(CANCEL)을 표현할 수 있다.
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //기본키
     @Column(name = "order_id")  //속성명

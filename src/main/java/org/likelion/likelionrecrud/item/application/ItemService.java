@@ -38,7 +38,6 @@ public class ItemService {
         List<ItemInfoResDto> itemInfoResDtoList = items.stream()    //각 Item 객체를 ItemInfoResDto 객체로 변환
                 .map(ItemInfoResDto::from)  // from 정적 메소드 사용
                 .toList();  // MemberInfoResDto 객체들의 스트림을 리스트로 수집함
-//                .collect(Collectors.toList());
         return ItemListResDto.from(itemInfoResDtoList);
     }
 
