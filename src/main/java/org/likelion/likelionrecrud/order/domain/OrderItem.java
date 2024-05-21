@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.likelion.likelionrecrud.item.domain.Item;
-import org.springframework.boot.context.properties.ConfigurationPropertiesBinding;
 
 import static jakarta.persistence.FetchType.LAZY;
 
@@ -38,23 +37,4 @@ public class OrderItem {
         this.orderPrice = orderPrice;
         this.count = count;
     }
-
-    // 하나의 주문상품 객체가 생성
-    public static OrderItem createOrderItem(Item item, int orderPrice, int count) {
-        OrderItem orderItem = OrderItem.builder()
-                .item(item)
-                .orderPrice(orderPrice)
-                .count(count)
-                .build();
-//        item.removeStock(count);
-        return orderItem;
-    }
-
-    void addOrder(Order order) {
-        this.order = order;   // 주문 객체를 인자로 받아 내부 필드인 order를 해당 주문 객체로 설정
-    }
-
-//    public void cancel() {
-//        getItem().addStock(count);
-//    }
 }

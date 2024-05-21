@@ -22,8 +22,6 @@ public class OrderController {
     public ResponseEntity<String> orderSave(@RequestBody OrderSaveReqDto orderSaveReqDto) {
         orderService.orderSave(orderSaveReqDto);
         return new ResponseEntity<>("주문 저장!", HttpStatus.CREATED);
-        // Long orderId = orderService.orderSave(orderSaveReqDto);
-        // return ResponseEntity.ok("주문이 접수되었습니다. 주문번호: " + orderId);
     }
 
     @GetMapping("/{memberId}")
