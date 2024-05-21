@@ -26,6 +26,7 @@ public class OrderController {
 
     @GetMapping("/{memberId}")
     public ResponseEntity<OrderListResDto> getOrdersByMember(@PathVariable("memberId") Long memberId) {
+        // 특정 회원의 모든 주문 정보를 조회하는 서비스 계층의 메서드를 호출
         List<OrderInfoResDto> orderInfoResDto = orderService.findOrderInfoByMemberId(memberId);
         return ResponseEntity.ok(OrderListResDto.from(orderInfoResDto));
     }

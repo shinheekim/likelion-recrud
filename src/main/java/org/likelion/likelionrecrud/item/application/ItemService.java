@@ -33,6 +33,7 @@ public class ItemService {
         itemRepository.save(item);
     }
 
+    // 데이터베이스에 저장된 모든 아이템을 조회하고, 이를 DTO 리스트로 변환하여 반환
     public ItemListResDto itemFindAll() {
         List<Item> items = itemRepository.findAll();    // item 엔티티 목록을 itemRepository.findAll()을 통해 조회
         List<ItemInfoResDto> itemInfoResDtoList = items.stream()    //각 Item 객체를 ItemInfoResDto 객체로 변환
@@ -41,6 +42,7 @@ public class ItemService {
         return ItemListResDto.from(itemInfoResDtoList);
     }
 
+    // 특정 아이템을 ID로 조회하고, 이를 DTO로 변환하여 반환
     public ItemInfoResDto itemFindOne(Long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow
                 (() -> new IllegalArgumentException("해당 상품이 없습니다."));
